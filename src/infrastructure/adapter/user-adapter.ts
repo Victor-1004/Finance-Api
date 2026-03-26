@@ -1,3 +1,4 @@
+import type { Page } from "../../app/domain/output/page.js"
 import type { UserOutput } from "../../app/domain/output/user-output.js"
 import type { User } from "../../app/domain/user.js"
 import type { UserGateway } from "../../app/gateway/user-gateway.js"
@@ -8,6 +9,10 @@ export class UserAdapter implements UserGateway {
     constructor(
         private userGateway: UserGateway = new UserRepository(db)
     ) {}
+
+    async find(page: number, size: number): Promise<Page> {
+        return this.userGateway.find(page, size)
+    }
 
     async create(user: User): Promise<User> {
         return this.userGateway.create(user)
@@ -21,7 +26,7 @@ export class UserAdapter implements UserGateway {
         return this.userGateway.delete(user)
     }
 
-    async findById(id: number): Promise<User> {
+    async findById(id: string): Promise<User> {
         return this.userGateway.findById(id)
     }
 
