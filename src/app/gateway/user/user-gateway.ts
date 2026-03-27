@@ -9,5 +9,5 @@ export interface UserGateway {
   findById(id: string): Promise<User>;
   findAll(): Promise<UserOutput[]>;
   find(page: number, size: number): Promise<Page>;
-  findByEmail(email: string): Promise<User>;
+  findByEmail(email: string): Promise<User | null>;
 }

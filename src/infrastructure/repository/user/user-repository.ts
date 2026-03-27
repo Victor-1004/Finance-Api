@@ -1,7 +1,7 @@
+import { Category } from "../../../app/domain/transactions/category.js";
 import { Page } from "../../../app/domain/user/output/page.js";
 import { UserOutput } from "../../../app/domain/user/output/user-output.js";
 import { User } from "../../../app/domain/user/user.js";
-import type { UserGateway } from "../../../app/gateway/user/user-gateway.js";
 import type { Knex } from "knex";
 
 export class UserRepository {
@@ -10,26 +10,29 @@ export class UserRepository {
     private tableName: string = "users",
   ) {}
 
-  async findByEmail(email: string): Promise<User> {
+  private toRow(user: User) {
+    const { categories, ...row } = user;
+    return row;
+  }
+
+  async findByEmail(email: string): Promise<User | null> {
     const result = await this.db(this.tableName).where({ email }).first();
-    return new User(result.id, result.name, result.email, result.password);
+    if (!result) {
+      return null;
+    }
+    return User.mapUser(result);
   }
 
   async create(user: User): Promise<void> {
-    await this.db(this.tableName).insert(user);
+    await this.db(this.tableName).insert(this.toRow(user));
   }
 
   async update(user: User): Promise<User> {
     const result = await this.db(this.tableName)
       .where({ id: user.id })
-      .update(user)
+      .update(this.toRow(user))
       .returning("*");
-    return new User(
-      result[0].id,
-      result[0].name,
-      result[0].email,
-      result[0].password,
-    );
+    return User.mapUser(result[0]);
   }
 
   async delete(user: User): Promise<User> {
@@ -37,30 +40,44 @@ export class UserRepository {
       .where({ id: user.id })
       .delete()
       .returning("*");
-    return new User(
-      result[0].id,
-      result[0].name,
-      result[0].email,
-      result[0].password,
-    );
+    return User.mapUser(result[0]);
   }
 
   async findById(id: string): Promise<User> {
     const result = await this.db(this.tableName).where({ id }).first();
-    return new User(result.id, result.name, result.email, result.password);
+    return User.mapUser(result);
   }
 
   async findAll(): Promise<UserOutput[]> {
-    const result = await this.db(this.tableName);
-    return result.map((user: any) => {
-      return new UserOutput(user.id, user.name, user.email);
-    });
+    const usersRaw = await this.db(this.tableName);
+    const users = usersRaw.map(User.mapUser);
+    await this.distributeCategories(users);
+    return users.map(UserOutput.fromUser);
   }
 
   async find(page: number, size: number): Promise<Page> {
-    const result = await this.db(this.tableName)
+    const usersRaw = await this.db(this.tableName)
       .limit(size)
       .offset(page * size);
-    return new Page(page, size, result.length, result);
+
+    const users = usersRaw.map(User.mapUser);
+    await this.distributeCategories(users);
+
+    return new Page(page, size, users.length, users.map(UserOutput.fromUser));
+  }
+
+  private async distributeCategories(users: User[]): Promise<void> {
+    if (users.length === 0) return;
+    const userIds = users.map((u) => u.id);
+    const categoriesRaw = await this.db("categories").whereIn(
+      "user_id",
+      userIds,
+    );
+
+    users.forEach((user) => {
+      user.categories = categoriesRaw
+        .filter((c) => c.user_id === user.id)
+        .map((c) => Category.mapCategory(c));
+    });
   }
 }

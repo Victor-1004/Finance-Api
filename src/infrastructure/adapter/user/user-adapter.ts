@@ -6,10 +6,14 @@ import { db } from "../../../database/config.js";
 import { UserRepository } from "../../repository/user/user-repository.js";
 
 export class UserAdapter implements UserGateway {
-  constructor(private userGateway: UserGateway = new UserRepository(db)) {}
+  constructor(private userGateway: UserRepository = new UserRepository(db)) {}
 
-  async findByEmail(email: string): Promise<User> {
-    return this.userGateway.findByEmail(email);
+  async findByEmail(email: string): Promise<User | null> {
+    const user = await this.userGateway.findByEmail(email);
+    if (!user) {
+      return null;
+    }
+    return user;
   }
 
   async find(page: number, size: number): Promise<Page> {

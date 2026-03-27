@@ -29,6 +29,7 @@ export class AuthInteractor {
     if (!user) {
       return res.status(401).json({ error: "Invalid token" });
     }
+    req.headers.user = user;
     next();
   }
 
@@ -38,7 +39,7 @@ export class AuthInteractor {
       throw new Error("User already exists");
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User(randomUUID(), name, email, hashedPassword);
-    return this.userGateway.create(newUser);
+    const newUser = new User(randomUUID(), name, email, hashedPassword, []);
+    this.userGateway.create(newUser);
   }
 }

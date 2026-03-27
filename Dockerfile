@@ -6,7 +6,6 @@ COPY package*.json ./
 
 RUN npm install
 
-#envvvv cade???
 COPY . .
 
 EXPOSE 8080

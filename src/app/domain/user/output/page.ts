@@ -3,6 +3,6 @@ export class Page {
     public page: number,
     public size: number,
     public total: number,
-    public content: any[],
+    public content: any[] ,
   ) {}
 }
