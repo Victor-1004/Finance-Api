@@ -1,7 +1,7 @@
-import { Page } from "../../app/domain/output/page.js";
-import { UserOutput } from "../../app/domain/output/user-output.js";
-import { User } from "../../app/domain/user.js";
-import type { UserGateway } from "../../app/gateway/user-gateway.js";
+import { Page } from "../../../app/domain/user/output/page.js";
+import { UserOutput } from "../../../app/domain/user/output/user-output.js";
+import { User } from "../../../app/domain/user/user.js";
+import type { UserGateway } from "../../../app/gateway/user/user-gateway.js";
 import type { Knex } from "knex";
 
 export class UserRepository {
@@ -10,19 +10,15 @@ export class UserRepository {
     private tableName: string = "users",
   ) {}
 
-  async create(user: User): Promise<User> {
-    const result = await this.db(this.tableName).insert(user).returning("*");
-    return new User(
-      result[0].id,
-      result[0].name,
-      result[0].email,
-      result[0].password,
-    );
+  async findByEmail(email: string): Promise<User> {
+    const result = await this.db(this.tableName).where({ email }).first();
+    return new User(result.id, result.name, result.email, result.password);
   }
-  async test() {
-    const result = await this.db(this.tableName).select("*");
-    return result;
+
+  async create(user: User): Promise<void> {
+    await this.db(this.tableName).insert(user);
   }
+
   async update(user: User): Promise<User> {
     const result = await this.db(this.tableName)
       .where({ id: user.id })

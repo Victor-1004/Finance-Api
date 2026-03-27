@@ -8,6 +8,7 @@ export class User {
         public password: string
     ) {}
 
+    
 
     public update(updatedUser: User): User {
         if (updatedUser.name) {
