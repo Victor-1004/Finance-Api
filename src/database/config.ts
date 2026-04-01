@@ -15,4 +15,7 @@ export const AppDataSource = new DataSource({
   logging: false,
   entities: ["src/infrastructure/entity/**/*.ts"],
   migrations: ["src/database/migrations/**/*.ts"],
+  migrationsRun: true,
 });
+
+export default AppDataSource;

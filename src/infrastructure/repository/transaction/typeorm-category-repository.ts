@@ -6,9 +6,12 @@ export class CategoryRepository {
     private repo = AppDataSource.getRepository(CategoryEntity);
 
     async findByUserId(user_id: UUID): Promise<CategoryEntity[] | null> {
-        return this.repo.find({ where: { user: { id: user_id } }, relations: ["user"], order: { created_at: "DESC" } });
+        return this.repo.find({ where: [{ user: { id: user_id } }, {is_default: true}], relations: ["user"], order: { created_at: "DESC" } });
     }
 
+    async findByNameAndUserId(name: string, user_id: UUID): Promise<CategoryEntity | null> {
+        return this.repo.findOne({ where: { name, user: { id: user_id } }, relations: ["user"] });
+    }
     async create(user_id: UUID, category: Partial<CategoryEntity>): Promise<CategoryEntity> {
         const newCategory = this.repo.create({ ...category, user: { id: user_id } });
         return this.repo.save(newCategory);

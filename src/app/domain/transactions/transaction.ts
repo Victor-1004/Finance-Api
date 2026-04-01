@@ -5,7 +5,7 @@ import type { Category } from "./category.js";
 export class Transaction {
   constructor(
     public id: UUID,
-    public user_id: string | null,
+    public user_id: UUID | null,
     public category_id: string,
     public amount: number,
     public date: Date,

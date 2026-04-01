@@ -7,7 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/main.ts",
     "build": "tsc",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "migration:create": "typeorm migration:create",
+    "migration:generate": "typeorm migration:generate -d src/database/config.ts",
+    "migration:run": "typeorm migration:run -d src/database/config.ts",
+    "migration:revert": "typeorm migration:revert -d src/database/config.ts"
   },
   "keywords": [],
   "author": "",

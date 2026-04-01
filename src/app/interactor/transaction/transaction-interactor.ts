@@ -15,7 +15,7 @@ export class TransactionInteractor {
 
   async create(userId: UUID, transaction: Transaction): Promise<void> {
     transaction.user_id = userId;
-    await this.transactionGateway.create(userId, transaction);
+    await this.transactionGateway.create(transaction);
   }
 
   async update(transaction: Transaction): Promise<void> {

@@ -8,15 +8,18 @@ import {
     entityArrayToOutput,
     domainToEntity,
 } from "../../adapter/mapper/transaction/transaction-mapper.js";
+import type { UserEntity } from "../../entity/user/user-entity.js";
+import type { CategoryEntity } from "../../entity/transaction/category-entity.js";
 
 export class TransactionRepository {
     private repo = AppDataSource.getRepository(TransactionEntity);
 
-    async create(userId: UUID, transaction: Transaction): Promise<Transaction | null> {
+    async create(transaction: Transaction): Promise<Transaction | null> {
         try {
             const newTransaction = this.repo.create({
                 ...domainToEntity(transaction),
-                user: { id: userId },
+                user: { id: transaction.user_id } as UserEntity,
+                category: { id: transaction.category_id } as CategoryEntity
             });
             const savedTransaction = await this.repo.save(newTransaction);
             return entityToDomain(savedTransaction);

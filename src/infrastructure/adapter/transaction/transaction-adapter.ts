@@ -8,8 +8,8 @@ export class TransactionAdapter implements TransactionGateway {
     private transactionRepository: TransactionRepository
   ) {}
 
-  async create(userId: UUID, transaction: Transaction): Promise<void> {
-    await this.transactionRepository.create(userId, transaction);
+  async create(transaction: Transaction): Promise<void> {
+    await this.transactionRepository.create(transaction);
   }
 
   async update(transaction: Transaction): Promise<void> {

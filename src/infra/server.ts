@@ -4,6 +4,7 @@ import { UserAdapter } from "../infrastructure/adapter/user/user-adapter.js";
 import categoryRoutes from "../infrastructure/routes/transaction/category-routes.js";
 import { transactionRoutes } from "../infrastructure/routes/transaction/transaction-routes.js";
 import { UserRepository } from "../infrastructure/repository/user/typeorm-user-repository.js";
+import { ApiError } from "../app/errors/api.js";
 
 const authInteractor = new AuthInteractor(new UserAdapter(new UserRepository()));
 
@@ -18,9 +19,12 @@ export async function createServer() {
         req.body.email,
         req.body.password,
       );
+      
       res.json(token);
     } catch (error: any) {
-      res.status(401).json({ error: error.message });
+      if(error instanceof ApiError) {
+        res.status(error.statusCode).json({ error: error.message });
+      }
     }
   });
   app.post("/register", async (req, res) => {
@@ -30,8 +34,11 @@ export async function createServer() {
         req.body.email,
         req.body.password,
       );
-      res.json(token);
+      res.status(200).json(token);
     } catch (error: any) {
+      if(error instanceof ApiError) {
+        return res.status(error.statusCode).json({ error: error.message });
+      }
       res.status(401).json({ error: error.message });
     }
   });
