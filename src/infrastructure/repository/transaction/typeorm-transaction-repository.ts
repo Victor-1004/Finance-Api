@@ -115,7 +115,7 @@ export class TransactionRepository {
             });
         }
         const result = await query.getRawOne();
--        return result?.balance ? Number(result.balance) : 0;
+        return result?.balance ? Number(result.balance) : 0;
     }
 }
 
