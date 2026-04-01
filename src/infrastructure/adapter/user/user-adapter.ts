@@ -1,42 +1,38 @@
+import type { UUID } from "node:crypto";
 import type { Page } from "../../../app/domain/user/output/page.js";
 import type { UserOutput } from "../../../app/domain/user/output/user-output.js";
 import type { User } from "../../../app/domain/user/user.js";
 import type { UserGateway } from "../../../app/gateway/user/user-gateway.js";
-import { db } from "../../../database/config.js";
-import { UserRepository } from "../../repository/user/user-repository.js";
+import type { UserRepository } from "../../repository/user/typeorm-user-repository.js";
+import { domainToEntity, entityToDomain } from "../mapper/user/user-mapper.js";
 
 export class UserAdapter implements UserGateway {
-  constructor(private userGateway: UserRepository = new UserRepository(db)) {}
+  constructor(private userGateway: UserRepository ) {}
 
   async findByEmail(email: string): Promise<User | null> {
     const user = await this.userGateway.findByEmail(email);
-    if (!user) {
-      return null;
-    }
-    return user;
+    return entityToDomain(user) || null;
   }
 
-  async find(page: number, size: number): Promise<Page> {
-    return this.userGateway.find(page, size);
+
+  async create(user: User): Promise<User | null> {
+    const createdUser = await this.userGateway.create(domainToEntity(user));
+    return entityToDomain(createdUser) || null;
   }
 
-  async create(user: User): Promise<void> {
-    this.userGateway.create(user);
+  async update(user: User): Promise<User | null> {
+    const updatedUser = await this.userGateway.update(user.id, domainToEntity(user));
+    return entityToDomain(updatedUser) || null;
   }
 
-  async update(user: User): Promise<User> {
-    return this.userGateway.update(user);
+  async delete(user: User): Promise<User | null> {
+    const deletedUser = await this.userGateway.delete(user.id);
+    return entityToDomain(deletedUser) || null;
   }
 
-  async delete(user: User): Promise<User> {
-    return this.userGateway.delete(user);
+  async findById(id: UUID): Promise<User | null> {
+    return entityToDomain( await this.userGateway.findById(id));
   }
 
-  async findById(id: string): Promise<User> {
-    return this.userGateway.findById(id);
-  }
 
-  async findAll(): Promise<UserOutput[]> {
-    return this.userGateway.findAll();
-  }
 }

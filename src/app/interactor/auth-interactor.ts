@@ -39,7 +39,7 @@ export class AuthInteractor {
       throw new Error("User already exists");
     }
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User(randomUUID(), name, email, hashedPassword, []);
+    const newUser = new User(randomUUID(), name, email, hashedPassword);
     this.userGateway.create(newUser);
   }
 }

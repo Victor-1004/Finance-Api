@@ -1,34 +1,35 @@
+import type { UUID } from "node:crypto";
 import type { Category } from "../../../app/domain/transactions/category.js";
 import type { CategoryGateway } from "../../../app/gateway/transaction/category-gateway.js";
-import { db } from "../../../database/config.js";
-import CategoryRepository from "../../repository/transaction/category-repository.js";
+import type { CategoryRepository } from "../../repository/transaction/typeorm-category-repository.js";
+import { entityArrayToDomain, entityToDomain } from "../mapper/transaction/category-mapper.js";
 
 export class CategoryAdapter implements CategoryGateway {
   constructor(
-    private categoryRepository: CategoryRepository = new CategoryRepository(db),
+    private categoryRepository: CategoryRepository 
   ) {}
 
-  async create(userId: string, category: Category): Promise<void> {
+  async create(userId: UUID, category: Category): Promise<void> {
     this.categoryRepository.create(userId, category);
   }
 
-  async update(category: Category): Promise<Category> {
-    return this.categoryRepository.update(category);
+  async update(category: Category): Promise<Category | null> {
+    return entityToDomain(await this.categoryRepository.update(category.id, category));
   }
 
   async delete(category: Category): Promise<void> {
-    this.categoryRepository.delete(category);
+    this.categoryRepository.delete(category.id);
   }
 
-  async findById(id: string): Promise<Category> {
-    return this.categoryRepository.findById(id);
+  async findById(id: UUID): Promise<Category | null> {
+    return entityToDomain(await this.categoryRepository.findById(id));
   }
 
-  async findAll(): Promise<Category[]> {
-    return this.categoryRepository.findAll();
-  }
+  async findAll(): Promise<Category[] | null> {
+    return entityArrayToDomain(await this.categoryRepository.findAll());
+  } 
 
-  async findByUserId(userId: string): Promise<Category[]> {
-    return this.categoryRepository.findByUserId(userId);
+  async findByUserId(userId: UUID): Promise<Category[] | null> {
+    return entityArrayToDomain(await this.categoryRepository.findByUserId(userId));
   }
 }

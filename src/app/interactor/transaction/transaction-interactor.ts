@@ -10,9 +10,7 @@ import { Page } from "../../domain/user/output/page.js";
 
 export class TransactionInteractor {
   constructor(
-    private transactionGateway: TransactionGateway,
-    private userGateway: UserGateway,
-    private categoryGateway: CategoryGateway,
+    private transactionGateway: TransactionGateway
   ) {}
 
   async create(userId: UUID, transaction: Transaction): Promise<void> {
@@ -28,12 +26,8 @@ export class TransactionInteractor {
     await this.transactionGateway.delete(transaction);
   }
 
-  async findById(id: string): Promise<Transaction | null> {
+  async findById(id: string): Promise<TransactionOutput | null> {
     return this.transactionGateway.findById(id);
-  }
-
-  async findAll(): Promise<Transaction[]> {
-    return this.transactionGateway.findAll();
   }
 
   async findByUserId(
@@ -52,35 +46,12 @@ export class TransactionInteractor {
       page,
       size,
     );
-    const transactions = await Promise.all(
-      transactionsData.map(async (transaction) => {
-        return new TransactionOutput(
-          transaction.id,
-          await this.userGateway.findById(transaction.user_id!),
-          await this.categoryGateway.findById(transaction.category_id!),
-          transaction.amount,
-          transaction.date,
-          transaction.description,
-          transaction.type,
-          transaction.createdAt,
-        );
-      }),
-    );
     return new Page(
       Number(page),
       Number(size),
-      transactions.length,
-      transactions,
-    );
-  }
-
-  async findByUserIdAndCategoryId(
-    userId: string,
-    categoryId: string,
-  ): Promise<Transaction[]> {
-    return this.transactionGateway.findByUserIdAndCategoryId(
-      userId,
-      categoryId,
+      transactionsData[1],
+      transactionsData[0],
+      Math.ceil(transactionsData[1] / Number(size)),
     );
   }
 }

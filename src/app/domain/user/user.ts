@@ -8,8 +8,7 @@ export class User {
     public name: string,
     public email: string,
     public password: string,
-    public categories: Category[] | null,
-    public transactions: Transaction[] | null,
+    public categories?: Category[],
   ) {}
 
   public update(updatedUser: User): User {
@@ -30,9 +29,7 @@ export class User {
       result.id,
       result.name,
       result.email,
-      result.password,
-      [],
-      [],
+      result.password
     );
   }
 }

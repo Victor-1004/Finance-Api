@@ -1,16 +1,14 @@
 import type { TransactionGateway } from "../../../app/gateway/transaction/transaction-gateway.js";
-import type { Transaction } from "../../../app/domain/transactions/transaction.js";
-import { TransactionRepository } from "../../repository/transaction/transaction-repository.js";
-import { db } from "../../../database/config.js";
+import type { Transaction, TransactionOutput } from "../../../app/domain/transactions/transaction.js";
+import type { TransactionRepository } from "../../repository/transaction/typeorm-transaction-repository.js";
+import type { UUID } from "node:crypto";
 
 export class TransactionAdapter implements TransactionGateway {
   constructor(
-    private transactionRepository: TransactionRepository = new TransactionRepository(
-      db,
-    ),
+    private transactionRepository: TransactionRepository
   ) {}
 
-  async create(userId: string, transaction: Transaction): Promise<void> {
+  async create(userId: UUID, transaction: Transaction): Promise<void> {
     await this.transactionRepository.create(userId, transaction);
   }
 
@@ -19,32 +17,19 @@ export class TransactionAdapter implements TransactionGateway {
   }
 
   async delete(transaction: Transaction): Promise<void> {
-    await this.transactionRepository.delete(transaction);
+    await this.transactionRepository.delete(transaction.id);
   }
 
-  async findById(id: string): Promise<Transaction | null> {
+  async findById(id: UUID): Promise<TransactionOutput | null> {
     return this.transactionRepository.findById(id);
   }
 
-  async findAll(): Promise<Transaction[]> {
-    return this.transactionRepository.findAll();
-  }
 
   async findByUserId(
-    userId: string,
+    userId: UUID,
     page: number,
     size: number,
-  ): Promise<Transaction[]> {
+  ): Promise<[TransactionOutput[], number]> {
     return this.transactionRepository.findByUserId(userId, page, size);
-  }
-
-  async findByUserIdAndCategoryId(
-    userId: string,
-    categoryId: string,
-  ): Promise<Transaction[]> {
-    return this.transactionRepository.findByUserIdAndCategoryId(
-      userId,
-      categoryId,
-    );
   }
 }

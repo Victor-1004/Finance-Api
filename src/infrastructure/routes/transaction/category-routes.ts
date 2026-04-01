@@ -1,10 +1,11 @@
 import { Router } from "express";
 import { CategoryInteractor } from "../../../app/interactor/transaction/category-interactor.js";
 import { CategoryAdapter } from "../../adapter/transaction/category-adapter.js";
+import { CategoryRepository } from "../../repository/transaction/typeorm-category-repository.js";
 
 export const categoryRouter = Router();
 
-const categoryInteractor = new CategoryInteractor(new CategoryAdapter());
+const categoryInteractor = new CategoryInteractor(new CategoryAdapter(new CategoryRepository()));
 
 categoryRouter.get("/", async (req, res) => {
   const categories = await categoryInteractor.findAll();
@@ -12,7 +13,7 @@ categoryRouter.get("/", async (req, res) => {
 });
 
 categoryRouter.get("/find", async (req: any, res: any) => {
-  const categories = await categoryInteractor.findByUserId(req.user.id);
+  const categories = await categoryInteractor.findByUserId(req.headers.user.id);
   res.json(categories);
 });
 
