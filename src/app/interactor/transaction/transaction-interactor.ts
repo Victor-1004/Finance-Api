@@ -7,6 +7,7 @@ import type { TransactionGateway } from "../../gateway/transaction/transaction-g
 import type { UserGateway } from "../../gateway/user/user-gateway.js";
 import type { CategoryGateway } from "../../gateway/transaction/category-gateway.js";
 import { Page } from "../../domain/user/output/page.js";
+import { ApiError } from "../../errors/api.js";
 
 export class TransactionInteractor {
   constructor(
@@ -32,6 +33,8 @@ export class TransactionInteractor {
 
   async findByUserId(
     userId: string,
+    initialDate: Date | null,
+    finalDate: Date | null,
     page?: number,
     size?: number,
   ): Promise<Page> {
@@ -43,6 +46,8 @@ export class TransactionInteractor {
     }
     const transactionsData = await this.transactionGateway.findByUserId(
       userId,
+      initialDate,
+      finalDate,
       page,
       size,
     );
@@ -53,5 +58,12 @@ export class TransactionInteractor {
       transactionsData[0],
       Math.ceil(transactionsData[1] / Number(size)),
     );
+  }
+
+  async findBalanceByUserId(userId: UUID, initialDate?: Date | null, finalDate?: Date | null): Promise<number> {
+    if(finalDate && initialDate && finalDate < initialDate) {
+      throw new ApiError("Data final não pode ser anterior à data inicial.", 406);
+    }
+    return this.transactionGateway.findBalanceByUserId(userId, initialDate, finalDate);
   }
 }

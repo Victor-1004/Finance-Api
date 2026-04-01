@@ -10,6 +10,7 @@ import {
 } from "../../adapter/mapper/transaction/transaction-mapper.js";
 import type { UserEntity } from "../../entity/user/user-entity.js";
 import type { CategoryEntity } from "../../entity/transaction/category-entity.js";
+import { Between, LessThanOrEqual, MoreThanOrEqual, type FindOptionsWhere } from "typeorm";
 
 export class TransactionRepository {
     private repo = AppDataSource.getRepository(TransactionEntity);
@@ -64,14 +65,27 @@ export class TransactionRepository {
 
     async findByUserId(
         userId: UUID,
+        initialDate: Date | null = null,
+        finalDate: Date | null = null,
         page: number,
         size: number
     ): Promise<[transactions: TransactionOutput[], total: number]> {
         try {
+
+            const where: FindOptionsWhere<TransactionEntity> = { user: { id: userId } };
+            const toDateString = (d: Date) => d.toISOString().split('T')[0]!;
+
+            if (initialDate && finalDate) {
+                where.date = Between(toDateString(initialDate), toDateString(finalDate));
+            } else if (initialDate) {
+                where.date = MoreThanOrEqual(toDateString(initialDate));
+            } else if (finalDate) {
+                where.date = LessThanOrEqual(toDateString(finalDate));
+            }
             const [trans, total] = await this.repo.findAndCount({
-                where: { user: { id: userId } },
+                where,
                 relations: ["user", "category"],
-                order: { created_at: "DESC" },
+                order: { date: "DESC" },
                 skip: page * size,
                 take: size,
             });
@@ -81,4 +95,27 @@ export class TransactionRepository {
             throw error;
         }
     }
-}   
+
+    async findBalanceByUserId(userId: UUID, initialDate: Date | null = null, finalDate: Date | null = null): Promise<number> {
+        let query = this.repo.createQueryBuilder("transaction")
+            .select("SUM(CASE WHEN transaction.type = 'income' THEN transaction.amount ELSE -transaction.amount END)", "balance")
+            .where("transaction.user_id = :userId", { userId });
+
+        const toDateString: (d: Date) => string = (d: Date) => d.toISOString().split('T')[0]!;
+
+        if (initialDate != null) {
+            query = query.andWhere("transaction.date >= :initialDate", {
+                initialDate: toDateString(initialDate)
+            });
+        }
+
+        if (finalDate != null) {
+            query = query.andWhere("transaction.date <= :finalDate", {
+                finalDate: toDateString(finalDate)
+            });
+        }
+        const result = await query.getRawOne();
+-        return result?.balance ? Number(result.balance) : 0;
+    }
+}
+

@@ -12,8 +12,8 @@ export class TransactionEntity {
     @Column({ type: "numeric", precision: 10, scale: 2 })
     amount!: number;
 
-    @Column({ type: "timestamp", nullable: true, default: () => "CURRENT_TIMESTAMP" })
-    date!: Date;
+    @Column({ type: "date", nullable: false })
+    date!: string;
 
     @Column({ type: "varchar" })
     description!: string;

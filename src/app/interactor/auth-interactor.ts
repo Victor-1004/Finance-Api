@@ -22,16 +22,20 @@ export class AuthInteractor {
   }
 
   async middleware(req: any, res: any, next: any) {
-    const token = req.headers.authorization;
-    if (!token) {
-      throw new ApiError("Token not found", 401);
+    try {
+      const token = req.headers.authorization;
+      if (!token) {
+        return res.status(401).json({ error: "Token not found" });
+      }
+      const user = jwtService.verify(token);
+      if (!user) {
+        return res.status(401).json({ error: "Invalid token" });
+      }
+      req.headers.user = user;
+      next();
+    } catch (error: any) {
+      return res.status(401).json({ error: error.message || "Invalid token" });
     }
-    const user = jwtService.verify(token);
-    if (!user) {
-      throw new ApiError("Invalid token", 401);
-    }
-    req.headers.user = user;
-    next();
   }
 
   async register(name: string, email: string, password: string) {

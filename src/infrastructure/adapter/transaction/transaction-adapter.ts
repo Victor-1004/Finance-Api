@@ -6,7 +6,7 @@ import type { UUID } from "node:crypto";
 export class TransactionAdapter implements TransactionGateway {
   constructor(
     private transactionRepository: TransactionRepository
-  ) {}
+  ) { }
 
   async create(transaction: Transaction): Promise<void> {
     await this.transactionRepository.create(transaction);
@@ -27,9 +27,15 @@ export class TransactionAdapter implements TransactionGateway {
 
   async findByUserId(
     userId: UUID,
+    initialDate: Date | null = null,
+    finalDate: Date | null = null,
     page: number,
     size: number,
   ): Promise<[TransactionOutput[], number]> {
-    return this.transactionRepository.findByUserId(userId, page, size);
+    return this.transactionRepository.findByUserId(userId, initialDate, finalDate, page, size);
+  }
+
+  async findBalanceByUserId(userId: UUID, initialDate?: Date | null, finalDate?: Date | null): Promise<number> {
+    return this.transactionRepository.findBalanceByUserId(userId, initialDate, finalDate);
   }
 }
