@@ -2,7 +2,7 @@
 
 ## 📌 Sobre
 
-Esta é a API de um sistema de controle financeiro pessoal, desenvolvida com foco em **boas práticas**, **arquitetura limpa** e **controle total sobre queries SQL**.
+Esta é a API de um sistema de controle financeiro pessoal, desenvolvida com foco em **boas práticas** e **arquitetura limpa**.
 
 A aplicação permite que usuários gerenciem receitas, despesas, categorias e metas financeiras.
 
@@ -23,10 +23,11 @@ src/
 │
 ├── infrastructure/
 │   ├── adapter/     # Controllers (Express)
-│   ├── repository/  # Implementação com Knex
+│   ├── entity/      # Entidades TypeORM
+│   ├── repository/  # Implementação dos repositórios
 │   └── routes/      # Rotas
 │
-├── database/        # Configuração do Knex
+├── database/        # Configuração do banco
 ├── infra/           # Configurações gerais
 └── main.ts
 ```
@@ -38,11 +39,12 @@ src/
 * Node.js
 * TypeScript
 * Express
-* Knex.js (Query Builder)
-* PostgreSQL (Supabase)
-* JWT (autenticação)
-* Bcrypt (hash de senha)
-* Zod (validação)
+* TypeORM (ORM)
+* PostgreSQL (driver pg)
+* jsonwebtoken (JWT)
+* bcryptjs (hash de senha)
+* CORS
+* dotenv
 
 ---
 
