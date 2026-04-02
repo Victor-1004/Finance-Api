@@ -11,9 +11,10 @@ export interface TransactionGateway {
     userId: string,
     initialDate: Date | null,
     finalDate: Date | null,
+    category: UUID | null,
     page: number,
     size: number,
   ): Promise<[TransactionOutput[], number]>;
-  findBalanceByUserId(userId: UUID, initialDate?: Date | null, finalDate?: Date | null): Promise<number>;
+  findBalanceByUserId(userId: UUID, initialDate?: Date | null, finalDate?: Date | null, category?: UUID | null): Promise<number>;
 
 }

@@ -67,11 +67,16 @@ export function entityArrayToOutput(transactionEntities: TransactionEntity[] | n
 
 export function domainToEntity(transaction: Transaction | null): Partial<TransactionEntity> {
     if (!transaction) return {};
-
+    
+    // Ensure date is in YYYY-MM-DD format (UTC)
+    const dateString = typeof transaction.date === 'string'
+        ? transaction.date.split('T')[0]!
+        : transaction.date;
+    
     return {
         id: transaction.id,
         amount: transaction.amount,
-        date: transaction.date,
+        date: dateString,
         description: transaction.description,
         type: transaction.type,
     };
@@ -80,11 +85,17 @@ export function domainToEntity(transaction: Transaction | null): Partial<Transac
 export function domainArrayToEntity(transactions: Transaction[] | null): Partial<TransactionEntity>[] {
     if (!transactions) return [];
 
-    return transactions.map(transaction => ({
-        id: transaction.id,
-        amount: transaction.amount,
-        date: transaction.date,
-        description: transaction.description,
-        type: transaction.type,
-    }));
+    return transactions.map(transaction => {
+        const dateString = typeof transaction.date === 'string'
+            ? transaction.date.split('T')[0]!
+            : transaction.date;
+        
+        return {
+            id: transaction.id,
+            amount: transaction.amount,
+            date: dateString,
+            description: transaction.description,
+            type: transaction.type,
+        };
+    });
 }

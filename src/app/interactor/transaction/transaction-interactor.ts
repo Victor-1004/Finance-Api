@@ -35,6 +35,7 @@ export class TransactionInteractor {
     userId: string,
     initialDate: Date | null,
     finalDate: Date | null,
+    category: UUID | null,
     page?: number,
     size?: number,
   ): Promise<Page> {
@@ -48,6 +49,7 @@ export class TransactionInteractor {
       userId,
       initialDate,
       finalDate,
+      category,
       page,
       size,
     );
@@ -60,10 +62,10 @@ export class TransactionInteractor {
     );
   }
 
-  async findBalanceByUserId(userId: UUID, initialDate?: Date | null, finalDate?: Date | null): Promise<number> {
+  async findBalanceByUserId(userId: UUID, initialDate?: Date | null, finalDate?: Date | null, category: UUID | null = null): Promise<number> {
     if(finalDate && initialDate && finalDate < initialDate) {
       throw new ApiError("Data final não pode ser anterior à data inicial.", 406);
     }
-    return this.transactionGateway.findBalanceByUserId(userId, initialDate, finalDate);
+    return this.transactionGateway.findBalanceByUserId(userId, initialDate, finalDate, category);
   }
 }

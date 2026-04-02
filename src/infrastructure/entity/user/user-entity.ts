@@ -2,6 +2,7 @@ import type { UUID } from "node:crypto";
 import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, OneToMany } from "typeorm"
 import { CategoryEntity } from "../transaction/category-entity.js";
 import { TransactionEntity } from "../transaction/transaction-entity.js";
+import { GoalEntity } from "../goals/goals-entity.js";
 
 @Entity("users")
 export class UserEntity {
@@ -25,4 +26,7 @@ export class UserEntity {
 
   @OneToMany(() => TransactionEntity, transaction => transaction.user)
   transactions!: TransactionEntity[];
+
+  @OneToMany(() => GoalEntity, goal => goal.user)
+  goals!: GoalEntity[];
 }

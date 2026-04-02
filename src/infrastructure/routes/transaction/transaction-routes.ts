@@ -12,14 +12,18 @@ transactionRoutes.get("/", async (req: any, res: any) => {
   const user = req.headers.user;
   const initialDate = req.query.initialDate ? new Date(req.query.initialDate) : null;
   const finalDate = req.query.finalDate ? new Date(req.query.finalDate) : null;
+  const category = req.query.category;
   const page = req.query.page;
   const size = req.query.size;
-  const transactions = await transactionInteractor.findByUserId(user.id, initialDate, finalDate, page, size);
+  const transactions = await transactionInteractor.findByUserId(user.id, initialDate, finalDate, category, page, size);
   res.json(transactions);
 });
 
 transactionRoutes.post("/", async (req: any, res: any) => {
   const user = req.headers.user;
+  if (req.body.category && !req.body.category_id) {
+    req.body.category_id = req.body.category;
+  }
   if (typeof req.body.date === 'string') {
     req.body.date = new Date(`${req.body.date}T00:00:00Z`);
   }
@@ -31,8 +35,9 @@ transactionRoutes.get("/balance", async (req: any, res: any) => {
   const user = req.headers.user;
   const initialDate = req.query.initialDate ? new Date(req.query.initialDate) : null;
   const finalDate = req.query.finalDate ? new Date(req.query.finalDate) : null;
+  const category = req.query.category;
   try {
-    const balance = await transactionInteractor.findBalanceByUserId(user.id, initialDate, finalDate);
+    const balance = await transactionInteractor.findBalanceByUserId(user.id, initialDate, finalDate, category);
     res.json({ balance });
   } catch (error) {
     if(error instanceof ApiError) {
@@ -45,6 +50,9 @@ transactionRoutes.get("/balance", async (req: any, res: any) => {
 
 transactionRoutes.put("/:id", async (req: any, res: any) => {
   const user = req.headers.user;
+  if (req.body.category && !req.body.category_id) {
+    req.body.category_id = req.body.category;
+  }
   const transaction = await transactionInteractor.update(req.body);
   res.json(transaction);
 });

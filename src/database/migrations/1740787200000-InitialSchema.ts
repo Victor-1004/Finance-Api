@@ -83,16 +83,21 @@ export class InitialSchema1740787200000 implements MigrationInterface {
 
         // GOALS
         await queryRunner.query(`
-        CREATE TABLE IF NOT EXISTS goals (
+        CREATE TABLE goals (
             id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
             user_id uuid NOT NULL,
             name text NOT NULL,
             target_amount numeric(10, 2) NOT NULL,
-            current_amount numeric(10, 2) NOT NULL,
+
+            start_date date NOT NULL DEFAULT CURRENT_DATE,
             deadline date NOT NULL,
+
+            category_id uuid,
             created_at timestamp NOT NULL DEFAULT now(),
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-        );
+
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+         );
         `);
     }
 
