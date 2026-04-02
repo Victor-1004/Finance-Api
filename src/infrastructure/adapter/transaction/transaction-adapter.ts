@@ -2,7 +2,7 @@ import type { TransactionGateway } from "../../../app/gateway/transaction/transa
 import type { Transaction, TransactionOutput } from "../../../app/domain/transactions/transaction.js";
 import type { TransactionRepository } from "../../repository/transaction/typeorm-transaction-repository.js";
 import type { UUID } from "node:crypto";
-import { entityArrayToOutput, entityToOutput } from "../mapper/transaction/transaction-mapper.js";
+import { entityToOutput } from "../mapper/transaction/transaction-mapper.js";
 
 export class TransactionAdapter implements TransactionGateway {
   constructor(
@@ -35,7 +35,7 @@ export class TransactionAdapter implements TransactionGateway {
     size: number,
   ): Promise<[TransactionOutput[], number]> {
     const [transactions, total] = await this.transactionRepository.findByUserId(userId, initialDate, finalDate, category, page, size);
-    return [entityArrayToOutput(transactions), total];
+    return [transactions, total];
   }
 
   async findBalanceByUserId(userId: UUID, initialDate?: Date | null, finalDate?: Date | null, category: UUID | null = null): Promise<number> {
